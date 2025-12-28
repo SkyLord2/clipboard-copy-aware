@@ -1,0 +1,31 @@
+
+[package]
+authors = ["LongYinan <lynweklm@gmail.com>"]
+edition = "2021"
+name = "clipboard_copy_aware"
+version = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = "3.0.0"
+napi-derive = "3.0.0"
+windows = { version = "0.62.2", features = [
+    "Win32_Foundation",
+    "Win32_System_DataExchange",    # 剪贴板相关
+    "Win32_System_Registry",        # 用于 GUID 定义
+    "Win32_UI_Shell",               # DragQueryFile (HDROP) 相关
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_SystemServices",
+    "Win32_Graphics_Gdi",           # BITMAP 相关
+    "Win32_System_LibraryLoader",
+    "Win32_System_Ole",             # CF_HDROP 相关
+] }
+
+[build-dependencies]
+napi-build = "2"
+
+[profile.release]
+lto = true
+strip = "symbols"
