@@ -7,7 +7,7 @@ use std::os::windows::ffi::OsStringExt;
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 use windows::{
-    core::*,
+    core::{ PCWSTR, Result, Error },
     Win32::Foundation::*,
     Win32::System::DataExchange::*,
     Win32::System::Ole::*,
@@ -209,7 +209,7 @@ unsafe fn setup_clipboard_monitor() -> Result<()> {
 
         if RegisterClassW(&wc) == 0 {
             eprintln!("Window Registration Failed!");
-            return Err(Error::new(windows::Win32::Foundation::E_FAIL, "Window Registration Failed!"));
+            return Err(Error::new(E_FAIL, "window Registration Failed!"));
         }
         
         let hwnd = CreateWindowExW(
@@ -226,7 +226,7 @@ unsafe fn setup_clipboard_monitor() -> Result<()> {
 
         if hwnd.is_err() {
             eprintln!("Window Creation Failed!");
-            return Err(Error::new(windows::Win32::Foundation::E_FAIL, "Window Creation Failed!"));
+            return Err(Error::new(E_FAIL, "Window Creation Failed!"));
         }
 
         let mut msg = MSG::default();
@@ -237,7 +237,7 @@ unsafe fn setup_clipboard_monitor() -> Result<()> {
     }
     else {
         eprintln!("Failed to get module handle.");
-        return Err(Error::new(windows::Win32::Foundation::E_FAIL, "Failed to get module handle."));
+        return Err(Error::new(E_FAIL, "Failed to get module handle."));
     }
 
     Ok(())
