@@ -1,0 +1,105 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hello Electron</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <p>正在运行 Electron 版本: <span id="node-version"></span></p>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Clipboard Monitor</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #preview-container { margin-top: 20px; border: 1px solid #ddd; padding: 10px; min-height: 200px; }
+        img { max-width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .info { color: #666; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>📋 剪贴板图片监控</h1>
+    <p>正在运行 Electron 版本: <span id="node-version"></span></p>
+    
+    <div id="preview-container">
+        <div class="info" id="status-text">等待截图...</div>
+        <img id="clipboard-img" style="display: none;" />
+    </div>
+
+    <script>
+        // 1. 定义 DIB 转 BMP 的核心函数
+        function createBmpUrlFromDib(dibData) {
+        // 此时 dibData 已经是 Uint8Array 了，直接用
+        const buffer = new Uint8Array(dibData);
+
+        if (buffer.length < 40) throw new Error("Data too short");
+
+        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        
+        // --- BMP 拼接逻辑 (保持不变) ---
+        const biSize = view.getUint32(0, true);
+        const biBitCount = view.getUint16(14, true);
+        const biCompression = view.getUint32(16, true);
+        const biClrUsed = view.getUint32(32, true);
+
+        let offsetToBits = 14 + biSize;
+        if (biBitCount <= 8) {
+            const paletteCount = biClrUsed === 0 ? (1 << biBitCount) : biClrUsed;
+            offsetToBits += paletteCount * 4;
+        } else if (biCompression === 3) { 
+            offsetToBits += 12; 
+        }
+
+        const fileHeader = new Uint8Array(14);
+        const fhView = new DataView(fileHeader.buffer);
+        fileHeader[0] = 0x42; fileHeader[1] = 0x4D;
+        fhView.setUint32(2, 14 + buffer.byteLength, true);
+        fhView.setUint32(10, offsetToBits, true);
+
+        const blob = new Blob([fileHeader, buffer], { type: 'image/bmp' });
+        return URL.createObjectURL(blob);
+    }
+        // 2. 监听主进程发来的消息
+        // window.electronAPI 是我们在 preload.js 中暴露的对象
+        if (window.electronAPI) {
+            window.electronAPI.onUpdateImage((info) => {
+                // console.log('收到截图信息:', info);
+                
+                const img = document.getElementById('clipboard-img');
+                const status = document.getElementById('status-text');
+
+                // 释放之前的 URL 对象，避免内存泄漏
+                if (img.src) {
+                    URL.revokeObjectURL(img.src);
+                }
+
+                try {
+                    // 转换并显示
+                    const imgUrl = createBmpUrlFromDib(info.data);
+                    img.src = imgUrl;
+                    img.style.display = 'block';
+                    
+                    status.innerHTML = `
+                        <strong>来源进程:</strong> ${info.pname} (PID: ${info.pid})<br/>
+                        <strong>数据大小:</strong> ${info.data.length || info.data.byteLength} bytes
+                    `;
+                } catch (e) {
+                    console.error('图片转换失败:', e);
+                    status.textContent = '图片数据解析失败';
+                }
+            });
+        } else {
+            console.error('electronAPI 未定义，请检查 preload.js 是否正确加载');
+        }
+
+        // 显示版本号 (原有逻辑)
+        const versionSpan = document.getElementById('node-version');
+        if (versionSpan) versionSpan.innerText = process.versions.electron;
+    </script>
+</body>
+</html>
