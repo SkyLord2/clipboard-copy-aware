@@ -15,6 +15,7 @@ pub fn to_wstring(value: &str) -> Vec<u16> {
 }
 
 // 辅助函数：检查是否允许打印（节流逻辑）
+#[allow(unused)]
 pub fn check_throttle(timer: &Mutex<Option<Instant>>) -> bool {
     // 获取锁
     let mut guard = timer.lock().unwrap();

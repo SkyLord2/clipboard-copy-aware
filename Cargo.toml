@@ -24,6 +24,7 @@ windows = { version = "0.62.2", features = [
   "Win32_UI_WindowsAndMessaging",
   "Win32_Graphics_Gdi",
 ] }
+chrono = "0.4"
 
 
 [build-dependencies]

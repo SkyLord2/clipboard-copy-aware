@@ -1,4 +1,4 @@
-use std::sync::atomic::{AtomicU32, AtomicUsize};
+use std::sync::atomic::{AtomicU32};
 use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
 use std::collections::HashSet;
@@ -22,12 +22,22 @@ pub static GLOBAL_LOG: OnceLock<ThreadsafeFunction<String>> = OnceLock::new();
 
 // 用于记录后台监控线程的 ID
 pub static MONITOR_THREAD_ID: AtomicU32 = AtomicU32::new(0);
-// 用于记录上一次图片的字节大小，用于过滤重复事件
-pub static LAST_IMG_SIZE: AtomicUsize = AtomicUsize::new(0);
 
 // === 节流控制配置 ===
 // 定义节流时间阈值：500毫秒
 pub const THROTTLE_MS: u64 = 500;
+
+// 使用 Mutex 记录上一次的指纹
+pub static LAST_IMG_FINGERPRINT: Mutex<Option<ImgFingerprint>> = Mutex::new(None);
+
+#[derive(Clone, Copy,PartialEq, Debug)]
+pub struct ImgFingerprint {
+    pub width: i32,
+    pub height: i32,
+    pub center_byte: u8, // 采样点
+    pub pid: u32,        // 来源进程
+    pub time: Instant, // [新增] 记录产生时间
+}
 
 #[napi]
 #[derive(Debug)]

@@ -5,8 +5,7 @@ use windows::{
     Win32::System::LibraryLoader::GetModuleHandleW,
     Win32::UI::WindowsAndMessaging::*,
 };
-use crate::{report_error_log, report_info_log, utils::{check_throttle, to_wstring}};
-use crate::global::LAST_UPDATE_LOG;
+use crate::{report_error_log, report_info_log, utils::{to_wstring}};
 use crate::analysis::analyze_clipboard;
 // 窗口过程函数
 unsafe extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
@@ -21,9 +20,7 @@ unsafe extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam:
             LRESULT(0)
         }
         WM_CLIPBOARDUPDATE => {
-            if check_throttle(&LAST_UPDATE_LOG) {
-                unsafe { analyze_clipboard() };    
-            }
+            unsafe { analyze_clipboard() };
             LRESULT(0)
         }
         WM_DESTROY => {
