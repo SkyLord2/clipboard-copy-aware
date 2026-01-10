@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Debug Rust Extension",
+        "program": "F:\\StudyWork\\env\\nvm4w\\nodejs\\node.exe", 
+        "args": [
+          "${workspaceFolder}/test.js" 
+        ],
+        "cwd": "${workspaceFolder}",
+        "sourceLanguages": ["rust"],
+        "env": {
+          "RUST_BACKTRACE": "1"
+        }
+      }
+    ]
+}

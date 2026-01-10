@@ -2,33 +2,33 @@
 [package]
 authors = ["LongYinan <lynweklm@gmail.com>"]
 edition = "2021"
-name    = "clipboard_copy_aware"
+name = "clipboard_copy_aware"
 version = "0.1.0"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = { version = "2.16.17", default-features = false, features = [
-  "napi4",
-  "async",
-] }
-napi-derive = "2.16.13"
+napi = "3.0.0"
+napi-derive = "3.0.0"
 windows = { version = "0.62.2", features = [
   "Win32_Foundation",
-  "Win32_System_DataExchange",    # 剪贴板相关
-  "Win32_System_Registry",        # 用于 GUID 定义
-  "Win32_UI_Shell",               # DragQueryFile (HDROP) 相关
-  "Win32_UI_WindowsAndMessaging",
-  "Win32_System_SystemServices",
-  "Win32_Graphics_Gdi",           # BITMAP 相关
+  "Win32_System_Threading",
+  "Win32_System_DataExchange",
+  "Win32_System_Com",
+  "Win32_System_Ole",
   "Win32_System_LibraryLoader",
-  "Win32_System_Ole",             # CF_HDROP 相关
+  "Win32_System_ProcessStatus",
+  "Win32_System_Memory",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_Graphics_Gdi",
 ] }
+
 
 [build-dependencies]
 napi-build = "2"
 
 [profile.release]
-lto   = true
+lto = true
 strip = "symbols"
